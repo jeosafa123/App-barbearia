@@ -1,0 +1,1 @@
+function gerarRelatorioServicos(){const m=mes.value;let r={};atendimentos.forEach(a=>{if(a.data.startsWith(m)){if(!r[a.servico])r[a.servico]={q:0,t:0};r[a.servico].q++;r[a.servico].t+=a.valor}});relatorio.innerHTML="";for(let s in r){relatorio.innerHTML+=`<div class='rel-item'><strong>${s}</strong><br>Qtd: ${r[s].q}<br>Total: R$ ${r[s].t}</div>`}}
