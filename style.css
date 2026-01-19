@@ -1,9 +1,61 @@
-body{margin:0;font-family:Arial;background:#f2f2f2}
-header{background:#111;color:#fff;text-align:center;padding:15px;font-size:20px}
-main{padding:10px}
-.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px}
-input,select,button{width:100%;padding:12px;margin-top:8px;font-size:16px}
-button{background:#111;color:white;border:none;border-radius:8px}
-ul{list-style:none;padding:0}
-li{background:#eee;padding:8px;margin-top:5px;border-radius:6px}
-.rel-item{background:#eee;padding:10px;margin-top:8px;border-radius:8px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{
+  height:100vh;
+  background:#0b0b0b;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.loading-screen{
+  max-width:420px;
+  width:100%;
+  text-align:center;
+}
+.loading-img{
+  width:100%;
+  max-width:360px;
+  animation:barberMove 1.5s infinite ease-in-out;
+}
+@keyframes barberMove{
+  0%{transform:translateX(0)}
+  50%{transform:translateX(3px)}
+  100%{transform:translateX(0)}
+}
+.image-wrapper{position:relative;display:inline-block}
+.spark{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:#ffb400;
+  border-radius:50%;
+  opacity:0;
+  animation:spark 1s infinite;
+}
+.spark1{top:42%;left:58%}
+.spark2{top:45%;left:60%;animation-delay:.3s}
+.spark3{top:40%;left:62%;animation-delay:.6s}
+@keyframes spark{
+  0%{opacity:0;transform:scale(0)}
+  50%{opacity:1;transform:scale(1.4)}
+  100%{opacity:0;transform:scale(0)}
+}
+.progress{
+  width:100%;
+  height:14px;
+  background:#1f1f1f;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:25px;
+}
+.bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#ffb400,#ffd76a);
+  transition:width .4s ease;
+}
+.text{
+  display:block;
+  margin-top:14px;
+  color:#ffb400;
+  font-size:18px;
+}
