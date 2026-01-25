@@ -253,7 +253,7 @@
     
     function delVenda(i) { if(confirm("Excluir venda?")) { vendas.splice(i, 1); atualizarTela(); } }
 
-    // --- SISTEMA DE BACKUP/COMPARTILHAMENTO ---
+    // --- SISTEMA DE BACKUP/COMPARTILHAMENTO CORRIGIDO ---
     async function exportarBackup() {
         const d = { barbeiros, servicos, vendas };
         const jsonStr = JSON.stringify(d);
@@ -262,10 +262,11 @@
         
         let sucesso = false;
 
-        // 1. Tentar Compartilhar (Celular)
+        // 1. Tentar Compartilhar (TRUQUE: Usar 'text/plain' para o Android aceitar)
         if (navigator.share && navigator.canShare) {
             try {
-                const file = new File([jsonStr], nomeArquivo, { type: "application/json" });
+                // MUDANÇA AQUI: type agora é "text/plain" para liberar WhatsApp/Drive
+                const file = new File([jsonStr], nomeArquivo, { type: "text/plain" });
                 await navigator.share({
                     files: [file],
                     title: 'Backup Barbearia',
