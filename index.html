@@ -114,7 +114,7 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px;">
             <button class="btn-acao" onclick="abrirModalRelatorio()" style="background: #e65100;">📄 PDF</button>
-            <button class="btn-acao" onclick="exportarBackup()">📤 BACKUP</button>
+            <button class="btn-acao" onclick="exportarBackup()">📤 SALVAR / COMPARTILHAR</button>
             <button class="btn-acao" onclick="document.getElementById('inBackup').click()">📥 RESTAURAR</button>
         </div>
         <input type="file" id="inBackup" style="display:none" onchange="importarBackup(event)">
@@ -253,51 +253,49 @@
     
     function delVenda(i) { if(confirm("Excluir venda?")) { vendas.splice(i, 1); atualizarTela(); } }
 
-    // --- NOVO SISTEMA DE BACKUP INTELIGENTE (COMPARTILHAMENTO/PASTAS) ---
+    // --- SISTEMA DE BACKUP/COMPARTILHAMENTO ---
     async function exportarBackup() {
         const d = { barbeiros, servicos, vendas };
         const jsonStr = JSON.stringify(d);
-        
         const agora = new Date();
-        const nomeArquivo = `gestao_backup_${agora.getFullYear()}-${(agora.getMonth()+1).toString().padStart(2,'0')}-${agora.getDate()}_${agora.getHours()}h${agora.getMinutes()}.json`;
+        const nomeArquivo = `backup_barbearia_${agora.getFullYear()}-${(agora.getMonth()+1)}-${agora.getDate()}.json`;
+        
+        let sucesso = false;
 
-        // 1. CELULAR (Compartilhar direto para Drive/WhatsApp)
+        // 1. Tentar Compartilhar (Celular)
         if (navigator.share && navigator.canShare) {
-            const file = new File([jsonStr], nomeArquivo, { type: "application/json" });
             try {
+                const file = new File([jsonStr], nomeArquivo, { type: "application/json" });
                 await navigator.share({
                     files: [file],
                     title: 'Backup Barbearia',
-                    text: 'Aqui está o backup atualizado do sistema.'
+                    text: 'Backup do Sistema de Barbearia'
                 });
-                return;
-            } catch (err) { console.log("Compartilhamento cancelado ou não suportado"); }
+                sucesso = true;
+            } catch (err) {
+                console.log("Compartilhamento ignorado, tentando download...");
+            }
         }
 
-        // 2. PC (Escolher Pasta Específica - Chrome/Edge)
-        if (window.showSaveFilePicker) {
+        // 2. Se não deu pra compartilhar, Baixar arquivo
+        if (!sucesso) {
             try {
-                const handle = await window.showSaveFilePicker({
-                    suggestedName: nomeArquivo,
-                    types: [{
-                        description: 'Arquivo de Backup JSON',
-                        accept: { 'application/json': ['.json'] },
-                    }],
-                });
-                const writable = await handle.createWritable();
-                await writable.write(jsonStr);
-                await writable.close();
-                alert("Backup salvo na pasta escolhida com sucesso!");
-                return;
-            } catch (err) { if (err.name !== 'AbortError') console.error(err); else return; }
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nomeArquivo;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+            } catch (err) {
+                alert("Erro ao baixar arquivo: " + err.message);
+            }
         }
-
-        // 3. FALLBACK (Download Automático)
-        const blob = new Blob([jsonStr], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = nomeArquivo;
-        a.click();
     }
 
     function importarBackup(e) {
@@ -307,12 +305,12 @@
                 const d = JSON.parse(ev.target.result);
                 if(d.vendas && d.barbeiros) {
                     barbeiros = d.barbeiros; servicos = d.servicos; vendas = d.vendas;
-                    alert("Backup restaurado com sucesso!");
+                    alert("Dados restaurados com sucesso!");
                     atualizarTela();
                 } else {
-                    alert("Arquivo inválido!");
+                    alert("Arquivo de backup inválido!");
                 }
-            } catch(err) { alert("Erro ao ler arquivo"); }
+            } catch(err) { alert("Erro ao ler arquivo. Verifique se é um .json válido."); }
         };
         reader.readAsText(e.target.files[0]);
     }
