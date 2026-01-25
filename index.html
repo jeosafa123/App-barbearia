@@ -187,15 +187,14 @@
                 </div>`;
         });
 
-        // Tabela de Hoje
+        // Tabela de Hoje (Visualização)
         const hoje = new Date().toLocaleDateString('pt-br');
         const tab = document.getElementById('corpo-tabela');
         tab.innerHTML = '';
-        const vendasHoje = vendas.filter(v => v.data === hoje); // Filtra só hoje para a tabela inicial
+        const vendasHoje = vendas.filter(v => v.data === hoje); 
         
         // Exibe do mais recente para o mais antigo
         vendasHoje.slice().reverse().forEach((v) => {
-             // Encontrar o índice original para poder deletar
             const indexOriginal = vendas.indexOf(v);
             tab.innerHTML += `<tr>
                 <td>${v.hora}</td><td>${v.barbeiro}</td><td>${v.servico}</td>
@@ -204,15 +203,13 @@
             </tr>`;
         });
 
-        // Cálculos
+        // Cálculos Totais
         const mesAtual = new Date().getMonth();
         const anoAtual = new Date().getFullYear();
         
         const totalHoje = vendasHoje.reduce((acc, v) => acc + v.valor, 0);
-        
         const totalMes = vendas.filter(v => {
             const partes = v.data.split('/');
-            // partes[1] é o mês (1 a 12), partes[2] é o ano
             return (parseInt(partes[1]) - 1) === mesAtual && parseInt(partes[2]) === anoAtual;
         }).reduce((acc, v) => acc + v.valor, 0);
 
@@ -256,18 +253,50 @@
     
     function delVenda(i) { if(confirm("Excluir venda?")) { vendas.splice(i, 1); atualizarTela(); } }
 
-    // --- SISTEMA DE BACKUP COM DATA NO NOME ---
-    function exportarBackup() {
+    // --- NOVO SISTEMA DE BACKUP INTELIGENTE (COMPARTILHAMENTO/PASTAS) ---
+    async function exportarBackup() {
         const d = { barbeiros, servicos, vendas };
-        const blob = new Blob([JSON.stringify(d)], { type: 'application/json' });
+        const jsonStr = JSON.stringify(d);
         
-        // Cria nome do arquivo com data e hora: gestao_backup_2026-01-24_15-30.json
         const agora = new Date();
         const nomeArquivo = `gestao_backup_${agora.getFullYear()}-${(agora.getMonth()+1).toString().padStart(2,'0')}-${agora.getDate()}_${agora.getHours()}h${agora.getMinutes()}.json`;
-        
+
+        // 1. CELULAR (Compartilhar direto para Drive/WhatsApp)
+        if (navigator.share && navigator.canShare) {
+            const file = new File([jsonStr], nomeArquivo, { type: "application/json" });
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'Backup Barbearia',
+                    text: 'Aqui está o backup atualizado do sistema.'
+                });
+                return;
+            } catch (err) { console.log("Compartilhamento cancelado ou não suportado"); }
+        }
+
+        // 2. PC (Escolher Pasta Específica - Chrome/Edge)
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: nomeArquivo,
+                    types: [{
+                        description: 'Arquivo de Backup JSON',
+                        accept: { 'application/json': ['.json'] },
+                    }],
+                });
+                const writable = await handle.createWritable();
+                await writable.write(jsonStr);
+                await writable.close();
+                alert("Backup salvo na pasta escolhida com sucesso!");
+                return;
+            } catch (err) { if (err.name !== 'AbortError') console.error(err); else return; }
+        }
+
+        // 3. FALLBACK (Download Automático)
+        const blob = new Blob([jsonStr], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = nomeArquivo; // O navegador vai salvar na pasta padrão (Downloads) com este nome
+        a.download = nomeArquivo;
         a.click();
     }
 
@@ -289,15 +318,8 @@
     }
 
     // --- SISTEMA DE RELATÓRIO PDF ---
-    function abrirModalRelatorio() {
-        document.getElementById('modal-relatorio').style.display = 'flex';
-    }
-
-    function fecharModal(e) {
-        if (e.target.id === 'modal-relatorio') {
-            document.getElementById('modal-relatorio').style.display = 'none';
-        }
-    }
+    function abrirModalRelatorio() { document.getElementById('modal-relatorio').style.display = 'flex'; }
+    function fecharModal(e) { if (e.target.id === 'modal-relatorio') document.getElementById('modal-relatorio').style.display = 'none'; }
 
     function gerarPDF(tipo) {
         const { jsPDF } = window.jspdf;
@@ -305,7 +327,7 @@
         
         const dataHoje = new Date();
         const strHoje = dataHoje.toLocaleDateString('pt-br');
-        const mesAtual = dataHoje.getMonth(); // 0-11
+        const mesAtual = dataHoje.getMonth(); 
         const anoAtual = dataHoje.getFullYear();
 
         let dadosFiltrados = [];
@@ -323,44 +345,30 @@
             });
         }
 
-        if (dadosFiltrados.length === 0) {
-            alert("Nenhuma venda encontrada para este período.");
-            return;
-        }
+        if (dadosFiltrados.length === 0) { alert("Nenhuma venda encontrada para este período."); return; }
 
-        // Título e Cabeçalho do PDF
         doc.setFontSize(18);
         doc.text("GESTÃO DE BARBEARIA", 105, 15, null, null, "center");
         doc.setFontSize(12);
         doc.text(tituloRelatorio, 105, 25, null, null, "center");
 
-        // Preparar linhas da tabela
         const tableBody = dadosFiltrados.map(v => [
-            v.data,
-            v.hora,
-            v.barbeiro,
-            v.servico,
-            `R$ ${parseFloat(v.valor).toFixed(2)}`
+            v.data, v.hora, v.barbeiro, v.servico, `R$ ${parseFloat(v.valor).toFixed(2)}`
         ]);
-
-        // Calcular total
         totalPeriodo = dadosFiltrados.reduce((acc, v) => acc + parseFloat(v.valor), 0);
 
-        // Gerar Tabela
         doc.autoTable({
             head: [['Data', 'Hora', 'Barbeiro', 'Serviço', 'Valor']],
             body: tableBody,
             startY: 35,
             theme: 'grid',
-            headStyles: { fillColor: [255, 180, 0], textColor: [0, 0, 0] }, // Amarelo do tema
+            headStyles: { fillColor: [255, 180, 0], textColor: [0, 0, 0] },
             foot: [['', '', '', 'TOTAL:', `R$ ${totalPeriodo.toFixed(2)}`]],
             footStyles: { fillColor: [20, 20, 20], textColor: [255, 255, 255], fontStyle: 'bold' }
         });
 
-        // Salvar arquivo
         const nomeArquivo = `Relatorio_${tipo}_${dataHoje.getTime()}.pdf`;
         doc.save(nomeArquivo);
-        
         document.getElementById('modal-relatorio').style.display = 'none';
     }
 
