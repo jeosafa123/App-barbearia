@@ -1,377 +1,171 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestão de Barbearia 2026</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
-    <style>
-        :root { --primary: #ffb400; --bg: #121212; --card: #1e1e1e; --text: #ffffff; --danger: #ff4444; --success: #28a745; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body, html { background: #000; font-family: sans-serif; color: var(--text); overflow-x: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gestão de Barbearia BR</title>
 
-        /* LOADING */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0b0b; display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .loading-screen { width: 100%; max-width: 420px; text-align: center; }
-        .image-wrapper { position: relative; display: inline-block; }
-        .loading-img { width: 100%; max-width: 300px; animation: barberMove 1.5s infinite ease-in-out; }
-        @keyframes barberMove { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
-        .progress { width: 80%; height: 12px; background: #1f1f1f; border-radius: 20px; overflow: hidden; margin: 25px auto 0 auto; }
-        .bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffb400, #ffd76a); transition: width .4s ease; }
-        .loading-text { display: block; margin-top: 14px; color: var(--primary); font-size: 18px; }
+<link rel="manifest" href="manifest.json">
 
-        /* APP LAYOUT */
-        #app-content { display: none; padding: 15px; background: var(--bg); min-height: 100vh; padding-bottom: 80px; }
-        header { text-align: center; padding: 10px 0; border-bottom: 2px solid var(--primary); margin-bottom: 15px; }
-        h1 { color: var(--primary); font-size: 1.1rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        h2 { font-size: 0.9rem; color: var(--primary); margin: 0 0 10px 0; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2d2d2d; color: #fff; font-size: 1rem; margin-bottom: 10px; }
-        
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; padding: 12px; }
-        .btn-add { background: var(--primary); color: #000; width: auto; padding: 10px; }
-        .btn-vender { background: var(--success); color: #fff; width: 100%; margin-top: 5px; }
-        .btn-acao { background: #333; color: #fff; font-size: 0.7rem; padding: 10px; border: 1px solid #444; }
-        
-        /* STATUS BARBEIRO */
-        #status-barbeiro { background: #2d2d2d; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); margin-bottom: 15px; }
-        .btn-trocar { background: #444; color: #fff; padding: 5px 10px; font-size: 0.7rem; border-radius: 4px; }
-
-        /* GRID E TABELA */
-        .grid-servicos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .card-servico { background: var(--card); padding: 12px; border-radius: 10px; border-top: 3px solid var(--primary); text-align: center; position: relative; }
-        .btn-excluir-card { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid #000; }
-        .table-area { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 300px; font-size: 0.75rem; }
-        th, td { padding: 8px 5px; text-align: left; border-bottom: 1px solid #333; }
-        .resumo { background: var(--primary); color: #000; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 15px; }
-        .total-item { display: flex; justify-content: space-between; font-size: 1rem; margin-bottom: 5px; }
-
-        /* MODAL RELATORIO */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card); padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; border: 1px solid var(--primary); text-align: center; }
-        .btn-pdf { background: #d32f2f; color: white; width: 100%; margin-top: 10px; }
-    </style>
+<style>
+:root { --primary:#c5a059; --bg:#121212; --card:#1e1e1e; --text:#fff; --danger:#ff4444; --success:#28a745; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;font-family:sans-serif;color:var(--text)}
+header{text-align:center;padding:12px;border-bottom:2px solid var(--primary)}
+h1{color:var(--primary);font-size:1.1rem}
+.card{background:var(--card);padding:15px;border-radius:12px;margin:15px;border:1px solid #333}
+input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #444;background:#2d2d2d;color:#fff;margin-bottom:8px}
+button{cursor:pointer;border:none;border-radius:8px;font-weight:bold;padding:10px}
+.btn{background:var(--primary);color:#000;width:100%}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{background:var(--card);padding:12px;border-radius:10px;border-top:3px solid var(--primary);text-align:center}
+.resumo{background:var(--primary);color:#000;padding:15px;border-radius:12px;font-weight:bold;margin:15px}
+</style>
 </head>
+
 <body>
 
-    <div id="splash-screen">
-        <div class="loading-screen">
-            <div class="image-wrapper">
-                <img src="loading.png" class="loading-img" alt="Carregando..." onerror="this.style.display='none'">
-                <h2 style="margin-top:20px; color:var(--primary)">GESTÃO 2026</h2>
-            </div>
-            <div class="progress"><div class="bar" id="bar"></div></div>
-            <span class="loading-text">Iniciando Sistema...</span>
-        </div>
-    </div>
+<header><h1>💈 GESTÃO DE BARBEARIA BR</h1></header>
 
-    <div id="app-content">
-        <header><h1>💈 GESTÃO DE BARBEARIA</h1></header>
+<div class="card">
+<select id="barbeiro"></select>
+<input id="novoBarbeiro" placeholder="Novo barbeiro">
+<button class="btn" onclick="addBarbeiro()">Cadastrar</button>
+</div>
 
-        <div id="area-selecao-barbeiro" class="card">
-            <h2>Quem está atendendo?</h2>
-            <select id="select-barbeiro" onchange="fixarBarbeiro(this.value)">
-                <option value="">Selecione...</option>
-            </select>
-            <div style="display: flex; gap: 5px; margin-top: 5px;">
-                <input id="novoBarbeiro" placeholder="Novo Barbeiro" style="margin:0; font-size: 0.8rem;">
-                <button class="btn-add" onclick="cadastrarBarbeiro()">+</button>
-            </div>
-        </div>
+<div class="card">
+<input id="nomeServico" placeholder="Novo serviço">
+<input id="precoServico" type="number" placeholder="Preço">
+<button class="btn" onclick="addServico()">Adicionar serviço</button>
+</div>
 
-        <div id="status-barbeiro" style="display: none;">
-            <span>Atendente: <strong id="nome-fixo">---</strong></span>
-            <button class="btn-trocar" onclick="liberarTroca()">TROCAR</button>
-        </div>
+<div id="servicos" class="grid"></div>
 
-        <div class="card">
-            <h2>✂️ Serviços</h2>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="nome-servico" placeholder="Ex: Cabelo + Barba" style="margin:0">
-                <button class="btn-add" onclick="cadastrarServico()" style="width: 40px;">+</button>
-            </div>
-        </div>
+<div class="card">
+<h3>📊 Histórico</h3>
+<input type="date" id="filtroData" onchange="filtrar()">
+<div id="lista"></div>
+</div>
 
-        <div id="grid-servicos" class="grid-servicos"></div>
+<div class="resumo">
+<div>HOJE: <span id="totalHoje">0</span></div>
+<div>MÊS: <span id="totalMes">0</span></div>
+<div>LUCRO CASA: <span id="lucroCasa">0</span></div>
+</div>
 
-        <div class="card">
-            <h2>📊 Movimento de Hoje</h2>
-            <div class="table-area">
-                <table>
-                    <thead><tr><th>Hora</th><th>Barbeiro</th><th>Serviço</th><th>R$</th><th></th></tr></thead>
-                    <tbody id="corpo-tabela"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="resumo">
-            <div class="total-item"><span>HOJE:</span> <span id="total-dia">R$ 0,00</span></div>
-            <div class="total-item"><span>MÊS ATUAL:</span> <span id="total-mes">R$ 0,00</span></div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px;">
-            <button class="btn-acao" onclick="abrirModalRelatorio()" style="background: #e65100;">📄 PDF</button>
-            <button class="btn-acao" onclick="exportarBackup()">📤 SALVAR / COMPARTILHAR</button>
-            <button class="btn-acao" onclick="document.getElementById('inBackup').click()">📥 RESTAURAR</button>
-        </div>
-        <input type="file" id="inBackup" style="display:none" onchange="importarBackup(event)">
-    </div>
-
-    <div id="modal-relatorio" class="modal-overlay" onclick="fecharModal(event)">
-        <div class="modal-content">
-            <h2>Gerar Relatório</h2>
-            <p style="color:#ccc; font-size:0.8rem; margin-bottom:15px">Escolha o período para o PDF:</p>
-            
-            <button class="btn-pdf" onclick="gerarPDF('dia')">📅 Relatório de HOJE</button>
-            <button class="btn-pdf" onclick="gerarPDF('mes')" style="background:var(--primary); color:#000">🗓️ Relatório do MÊS</button>
-            <button class="btn-acao" onclick="document.getElementById('modal-relatorio').style.display='none'" style="margin-top:15px; width:100%">Cancelar</button>
-        </div>
-    </div>
+<div class="card">
+<button class="btn" onclick="exportar()">📤 Backup</button>
+<input type="file" id="restaurar" onchange="importar(event)">
+</div>
 
 <script>
-    // --- LÓGICA DE LOADING ---
-    let progress = 0;
-    const bar = document.getElementById('bar');
-    const mainLoading = setInterval(() => {
-        progress += Math.floor(Math.random() * 10) + 5;
-        if (progress >= 100) {
-            progress = 100;
-            clearInterval(mainLoading);
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('app-content').style.display = 'block';
-            }, 500);
-        }
-        bar.style.width = progress + '%';
-    }, 150);
+let barbeiros=JSON.parse(localStorage.getItem("bb_barbeiros"))||[]
+let servicos=JSON.parse(localStorage.getItem("bb_servicos"))||[]
+let vendas=JSON.parse(localStorage.getItem("bb_vendas"))||[]
+let porcentagemCasa=40
 
-    // --- DADOS E VARIÁVEIS ---
-    let barbeiros = JSON.parse(localStorage.getItem('brb_lista')) || [];
-    let servicos = JSON.parse(localStorage.getItem('brb_serv')) || [{nome:'Corte', preco:30}];
-    let vendas = JSON.parse(localStorage.getItem('brb_vendas')) || [];
-    let barbeiroAtivo = localStorage.getItem('brb_ativo') || "";
+function salvar(){
+localStorage.setItem("bb_barbeiros",JSON.stringify(barbeiros))
+localStorage.setItem("bb_servicos",JSON.stringify(servicos))
+localStorage.setItem("bb_vendas",JSON.stringify(vendas))
+}
 
-    // --- FUNÇÕES PRINCIPAIS ---
-    function atualizarTela() {
-        // Limpeza de dados (segurança)
-        vendas = vendas.map(v => ({...v, valor: parseFloat(v.valor)||0}));
-        
-        // Barbeiros
-        const sel = document.getElementById('select-barbeiro');
-        sel.innerHTML = '<option value="">Selecione...</option>';
-        barbeiros.forEach(b => sel.innerHTML += `<option value="${b}">${b}</option>`);
+function atualizar(){
+const sel=document.getElementById("barbeiro")
+sel.innerHTML="<option>Barbeiro</option>"
+barbeiros.forEach(b=>sel.innerHTML+=`<option>${b}</option>`)
 
-        // Estado do Barbeiro
-        if(barbeiroAtivo) {
-            document.getElementById('area-selecao-barbeiro').style.display = 'none';
-            document.getElementById('status-barbeiro').style.display = 'flex';
-            document.getElementById('nome-fixo').innerText = barbeiroAtivo;
-        } else {
-            document.getElementById('area-selecao-barbeiro').style.display = 'block';
-            document.getElementById('status-barbeiro').style.display = 'none';
-        }
+const grid=document.getElementById("servicos")
+grid.innerHTML=""
+servicos.forEach((s,i)=>{
+grid.innerHTML+=`
+<div class="item">
+<strong>${s.nome}</strong>
+<div>R$ ${s.preco}</div>
+<button class="btn" onclick="vender(${i})">VENDER</button>
+</div>`
+})
 
-        // Serviços
-        const grid = document.getElementById('grid-servicos');
-        grid.innerHTML = '';
-        servicos.forEach((s, i) => {
-            grid.innerHTML += `
-                <div class="card-servico">
-                    <button class="btn-excluir-card" onclick="removerServico(${i})">✕</button>
-                    <strong style="font-size:0.85rem">${s.nome}</strong>
-                    <input type="number" value="${s.preco}" onchange="edPreco(${i}, this.value)" style="padding:5px; margin:5px 0; font-size:0.9rem; text-align:center;">
-                    <button class="btn-vender" onclick="vender(${i})">VENDER</button>
-                </div>`;
-        });
+listar()
+salvar()
+}
 
-        // Tabela de Hoje (Visualização)
-        const hoje = new Date().toLocaleDateString('pt-br');
-        const tab = document.getElementById('corpo-tabela');
-        tab.innerHTML = '';
-        const vendasHoje = vendas.filter(v => v.data === hoje); 
-        
-        // Exibe do mais recente para o mais antigo
-        vendasHoje.slice().reverse().forEach((v) => {
-            const indexOriginal = vendas.indexOf(v);
-            tab.innerHTML += `<tr>
-                <td>${v.hora}</td><td>${v.barbeiro}</td><td>${v.servico}</td>
-                <td>R$${v.valor.toFixed(2)}</td>
-                <td><button onclick="delVenda(${indexOriginal})" style="color:var(--danger); background:none; font-weight:bold;">✕</button></td>
-            </tr>`;
-        });
+function addBarbeiro(){
+const n=document.getElementById("novoBarbeiro").value
+if(!n)return
+barbeiros.push(n)
+atualizar()
+}
 
-        // Cálculos Totais
-        const mesAtual = new Date().getMonth();
-        const anoAtual = new Date().getFullYear();
-        
-        const totalHoje = vendasHoje.reduce((acc, v) => acc + v.valor, 0);
-        const totalMes = vendas.filter(v => {
-            const partes = v.data.split('/');
-            return (parseInt(partes[1]) - 1) === mesAtual && parseInt(partes[2]) === anoAtual;
-        }).reduce((acc, v) => acc + v.valor, 0);
+function addServico(){
+const n=document.getElementById("nomeServico").value
+const p=parseFloat(document.getElementById("precoServico").value)
+if(!n)return
+servicos.push({nome:n,preco:p})
+atualizar()
+}
 
-        document.getElementById('total-dia').innerText = 'R$ ' + totalHoje.toFixed(2).replace('.',',');
-        document.getElementById('total-mes').innerText = 'R$ ' + totalMes.toFixed(2).replace('.',',');
+function vender(i){
+const b=document.getElementById("barbeiro").value
+if(!b)return alert("Selecione barbeiro")
+const agora=new Date()
+vendas.push({
+barbeiro:b,
+servico:servicos[i].nome,
+valor:servicos[i].preco,
+data:agora.toISOString().slice(0,10)
+})
+atualizar()
+}
 
-        // Salvar
-        localStorage.setItem('brb_lista', JSON.stringify(barbeiros));
-        localStorage.setItem('brb_serv', JSON.stringify(servicos));
-        localStorage.setItem('brb_vendas', JSON.stringify(vendas));
-        localStorage.setItem('brb_ativo', barbeiroAtivo);
-    }
+function listar(lista=vendas){
+const div=document.getElementById("lista")
+div.innerHTML=""
+let hoje=0,mes=0
 
-    // --- AÇÕES DO USUÁRIO ---
-    function fixarBarbeiro(val) { if(val) { barbeiroAtivo = val; atualizarTela(); } }
-    function liberarTroca() { barbeiroAtivo = ""; atualizarTela(); }
-    
-    function cadastrarBarbeiro() {
-        const n = document.getElementById('novoBarbeiro').value;
-        if(n) { barbeiros.push(n); document.getElementById('novoBarbeiro').value = ''; atualizarTela(); }
-    }
-    
-    function cadastrarServico() {
-        const n = document.getElementById('nome-servico').value;
-        if(n) { servicos.push({nome:n, preco:0}); document.getElementById('nome-servico').value = ''; atualizarTela(); }
-    }
-    
-    function edPreco(i, v) { servicos[i].preco = v; atualizarTela(); }
-    function removerServico(i) { if(confirm("Remover serviço?")) { servicos.splice(i, 1); atualizarTela(); } }
-    
-    function vender(i) {
-        if(!barbeiroAtivo) return alert("Selecione um barbeiro primeiro!");
-        const agora = new Date();
-        vendas.push({
-            barbeiro: barbeiroAtivo, servico: servicos[i].nome, valor: parseFloat(servicos[i].preco),
-            data: agora.toLocaleDateString('pt-br'),
-            hora: agora.toLocaleTimeString('pt-br', {hour:'2-digit', minute:'2-digit'})
-        });
-        atualizarTela();
-    }
-    
-    function delVenda(i) { if(confirm("Excluir venda?")) { vendas.splice(i, 1); atualizarTela(); } }
+lista.forEach(v=>{
+div.innerHTML+=`<div>${v.data} - ${v.barbeiro} - ${v.servico} - R$ ${v.valor}</div>`
+const d=new Date(v.data)
+const h=new Date()
+if(d.toDateString()==h.toDateString())hoje+=v.valor
+if(d.getMonth()==h.getMonth())mes+=v.valor
+})
 
-    // --- SISTEMA DE BACKUP/COMPARTILHAMENTO CORRIGIDO ---
-    async function exportarBackup() {
-        const d = { barbeiros, servicos, vendas };
-        const jsonStr = JSON.stringify(d);
-        const agora = new Date();
-        const nomeArquivo = `backup_barbearia_${agora.getFullYear()}-${(agora.getMonth()+1)}-${agora.getDate()}.json`;
-        
-        let sucesso = false;
+const lucro=mes*(porcentagemCasa/100)
+document.getElementById("totalHoje").innerText="R$ "+hoje.toFixed(2)
+document.getElementById("totalMes").innerText="R$ "+mes.toFixed(2)
+document.getElementById("lucroCasa").innerText="R$ "+lucro.toFixed(2)
+}
 
-        // 1. Tentar Compartilhar (TRUQUE: Usar 'text/plain' para o Android aceitar)
-        if (navigator.share && navigator.canShare) {
-            try {
-                // MUDANÇA AQUI: type agora é "text/plain" para liberar WhatsApp/Drive
-                const file = new File([jsonStr], nomeArquivo, { type: "text/plain" });
-                await navigator.share({
-                    files: [file],
-                    title: 'Backup Barbearia',
-                    text: 'Backup do Sistema de Barbearia'
-                });
-                sucesso = true;
-            } catch (err) {
-                console.log("Compartilhamento ignorado, tentando download...");
-            }
-        }
+function filtrar(){
+const d=document.getElementById("filtroData").value
+if(!d)return listar()
+listar(vendas.filter(v=>v.data==d))
+}
 
-        // 2. Se não deu pra compartilhar, Baixar arquivo
-        if (!sucesso) {
-            try {
-                const blob = new Blob([jsonStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = nomeArquivo;
-                document.body.appendChild(a);
-                a.click();
-                
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }, 100);
-            } catch (err) {
-                alert("Erro ao baixar arquivo: " + err.message);
-            }
-        }
-    }
+function exportar(){
+const blob=new Blob([JSON.stringify({barbeiros,servicos,vendas})],{type:"application/json"})
+const a=document.createElement("a")
+a.href=URL.createObjectURL(blob)
+a.download="backup_barbearia.json"
+a.click()
+}
 
-    function importarBackup(e) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            try {
-                const d = JSON.parse(ev.target.result);
-                if(d.vendas && d.barbeiros) {
-                    barbeiros = d.barbeiros; servicos = d.servicos; vendas = d.vendas;
-                    alert("Dados restaurados com sucesso!");
-                    atualizarTela();
-                } else {
-                    alert("Arquivo de backup inválido!");
-                }
-            } catch(err) { alert("Erro ao ler arquivo. Verifique se é um .json válido."); }
-        };
-        reader.readAsText(e.target.files[0]);
-    }
+function importar(e){
+const r=new FileReader()
+r.onload=x=>{
+const d=JSON.parse(x.target.result)
+barbeiros=d.barbeiros
+servicos=d.servicos
+vendas=d.vendas
+atualizar()
+}
+r.readAsText(e.target.files[0])
+}
 
-    // --- SISTEMA DE RELATÓRIO PDF ---
-    function abrirModalRelatorio() { document.getElementById('modal-relatorio').style.display = 'flex'; }
-    function fecharModal(e) { if (e.target.id === 'modal-relatorio') document.getElementById('modal-relatorio').style.display = 'none'; }
-
-    function gerarPDF(tipo) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        const dataHoje = new Date();
-        const strHoje = dataHoje.toLocaleDateString('pt-br');
-        const mesAtual = dataHoje.getMonth(); 
-        const anoAtual = dataHoje.getFullYear();
-
-        let dadosFiltrados = [];
-        let tituloRelatorio = "";
-        let totalPeriodo = 0;
-
-        if (tipo === 'dia') {
-            tituloRelatorio = `Relatório Diário - ${strHoje}`;
-            dadosFiltrados = vendas.filter(v => v.data === strHoje);
-        } else {
-            tituloRelatorio = `Relatório Mensal - ${mesAtual+1}/${anoAtual}`;
-            dadosFiltrados = vendas.filter(v => {
-                const partes = v.data.split('/');
-                return (parseInt(partes[1]) - 1) === mesAtual && parseInt(partes[2]) === anoAtual;
-            });
-        }
-
-        if (dadosFiltrados.length === 0) { alert("Nenhuma venda encontrada para este período."); return; }
-
-        doc.setFontSize(18);
-        doc.text("GESTÃO DE BARBEARIA", 105, 15, null, null, "center");
-        doc.setFontSize(12);
-        doc.text(tituloRelatorio, 105, 25, null, null, "center");
-
-        const tableBody = dadosFiltrados.map(v => [
-            v.data, v.hora, v.barbeiro, v.servico, `R$ ${parseFloat(v.valor).toFixed(2)}`
-        ]);
-        totalPeriodo = dadosFiltrados.reduce((acc, v) => acc + parseFloat(v.valor), 0);
-
-        doc.autoTable({
-            head: [['Data', 'Hora', 'Barbeiro', 'Serviço', 'Valor']],
-            body: tableBody,
-            startY: 35,
-            theme: 'grid',
-            headStyles: { fillColor: [255, 180, 0], textColor: [0, 0, 0] },
-            foot: [['', '', '', 'TOTAL:', `R$ ${totalPeriodo.toFixed(2)}`]],
-            footStyles: { fillColor: [20, 20, 20], textColor: [255, 255, 255], fontStyle: 'bold' }
-        });
-
-        const nomeArquivo = `Relatorio_${tipo}_${dataHoje.getTime()}.pdf`;
-        doc.save(nomeArquivo);
-        document.getElementById('modal-relatorio').style.display = 'none';
-    }
-
-    atualizarTela();
+if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js")}
+atualizar()
 </script>
+
 </body>
 </html>
