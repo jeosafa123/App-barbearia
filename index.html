@@ -1,169 +1,205 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gestão de Barbearia BR</title>
-
-<link rel="manifest" href="manifest.json">
-
-<style>
-:root { --primary:#c5a059; --bg:#121212; --card:#1e1e1e; --text:#fff; --danger:#ff4444; --success:#28a745; }
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#000;font-family:sans-serif;color:var(--text)}
-header{text-align:center;padding:12px;border-bottom:2px solid var(--primary)}
-h1{color:var(--primary);font-size:1.1rem}
-.card{background:var(--card);padding:15px;border-radius:12px;margin:15px;border:1px solid #333}
-input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #444;background:#2d2d2d;color:#fff;margin-bottom:8px}
-button{cursor:pointer;border:none;border-radius:8px;font-weight:bold;padding:10px}
-.btn{background:var(--primary);color:#000;width:100%}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.item{background:var(--card);padding:12px;border-radius:10px;border-top:3px solid var(--primary);text-align:center}
-.resumo{background:var(--primary);color:#000;padding:15px;border-radius:12px;font-weight:bold;margin:15px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestão de Barbearia BR</title>
+    <style>
+        :root { --primary:#c5a059; --bg:#121212; --card:#1e1e1e; --text:#fff; --danger:#ff4444; --success:#28a745; }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#000;font-family:sans-serif;color:var(--text);padding-bottom: 30px;}
+        header{text-align:center;padding:12px;border-bottom:2px solid var(--primary)}
+        h1{color:var(--primary);font-size:1.1rem}
+        .card{background:var(--card);padding:15px;border-radius:12px;margin:15px;border:1px solid #333}
+        input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #444;background:#2d2d2d;color:#fff;margin-bottom:8px}
+        button{cursor:pointer;border:none;border-radius:8px;font-weight:bold;padding:10px}
+        .btn{background:var(--primary);color:#000;width:100%}
+        .btn-del{background:var(--danger);color:#fff;padding:5px 10px;font-size:0.8rem;margin-left:5px}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .item{background:var(--card);padding:12px;border-radius:10px;border-top:3px solid var(--primary);text-align:center;position:relative}
+        .resumo{background:var(--primary);color:#000;padding:15px;border-radius:12px;font-weight:bold;margin:15px}
+        .lista-gerenciamento {list-style:none;margin-top:10px}
+        .lista-gerenciamento li {display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #333}
+    </style>
 </head>
-
 <body>
 
 <header><h1>💈 GESTÃO DE BARBEARIA BR</h1></header>
 
 <div class="card">
-<select id="barbeiro"></select>
-<input id="novoBarbeiro" placeholder="Novo barbeiro">
-<button class="btn" onclick="addBarbeiro()">Cadastrar</button>
+    <h3>🧔 Barbeiros</h3>
+    <div style="display:flex; gap:5px">
+        <input id="novoBarbeiro" placeholder="Nome do barbeiro">
+        <button class="btn" style="width:auto" onclick="addBarbeiro()">+</button>
+    </div>
+    <ul id="listaBarbeiros" class="lista-gerenciamento"></ul>
 </div>
 
 <div class="card">
-<input id="nomeServico" placeholder="Novo serviço">
-<input id="precoServico" type="number" placeholder="Preço">
-<button class="btn" onclick="addServico()">Adicionar serviço</button>
+    <h3>✂️ Novo Serviço</h3>
+    <input id="nomeServico" placeholder="Nome do serviço">
+    <input id="precoServico" type="number" placeholder="Preço R$">
+    <button class="btn" onclick="addServico()">Cadastrar Serviço</button>
 </div>
 
-<div id="servicos" class="grid"></div>
+<div class="card">
+    <select id="barbeiroSelecionado"></select>
+    <div id="servicosBotoes" class="grid"></div>
+</div>
 
 <div class="card">
-<h3>📊 Histórico</h3>
-<input type="date" id="filtroData" onchange="filtrar()">
-<div id="lista"></div>
+    <h3>📊 Histórico</h3>
+    <input type="date" id="filtroData" onchange="filtrar()">
+    <div id="listaHistorico"></div>
 </div>
 
 <div class="resumo">
-<div>HOJE: <span id="totalHoje">0</span></div>
-<div>MÊS: <span id="totalMes">0</span></div>
-<div>LUCRO CASA: <span id="lucroCasa">0</span></div>
+    <div>HOJE: <span id="totalHoje">0</span></div>
+    <div>MÊS: <span id="totalMes">0</span></div>
+    <div>LUCRO CASA (40%): <span id="lucroCasa">0</span></div>
 </div>
 
 <div class="card">
-<button class="btn" onclick="exportar()">📤 Backup</button>
-<input type="file" id="restaurar" onchange="importar(event)">
+    <button class="btn" onclick="exportar()">📤 Backup</button>
+    <input type="file" id="restaurar" style="display:none" onchange="importar(event)">
+    <button class="btn" style="background:#444;margin-top:10px" onclick="document.getElementById('restaurar').click()">📥 Importar</button>
 </div>
 
 <script>
-let barbeiros=JSON.parse(localStorage.getItem("bb_barbeiros"))||[]
-let servicos=JSON.parse(localStorage.getItem("bb_servicos"))||[]
-let vendas=JSON.parse(localStorage.getItem("bb_vendas"))||[]
-let porcentagemCasa=40
+let barbeiros = JSON.parse(localStorage.getItem("bb_barbeiros")) || []
+let servicos = JSON.parse(localStorage.getItem("bb_servicos")) || []
+let vendas = JSON.parse(localStorage.getItem("bb_vendas")) || []
+let porcentagemCasa = 40
 
 function salvar(){
-localStorage.setItem("bb_barbeiros",JSON.stringify(barbeiros))
-localStorage.setItem("bb_servicos",JSON.stringify(servicos))
-localStorage.setItem("bb_vendas",JSON.stringify(vendas))
+    localStorage.setItem("bb_barbeiros", JSON.stringify(barbeiros))
+    localStorage.setItem("bb_servicos", JSON.stringify(servicos))
+    localStorage.setItem("bb_vendas", JSON.stringify(vendas))
 }
 
 function atualizar(){
-const sel=document.getElementById("barbeiro")
-sel.innerHTML="<option>Barbeiro</option>"
-barbeiros.forEach(b=>sel.innerHTML+=`<option>${b}</option>`)
+    // Lista de Barbeiros (Gerenciamento)
+    const listaB = document.getElementById("listaBarbeiros")
+    listaB.innerHTML = ""
+    barbeiros.forEach((b, i) => {
+        listaB.innerHTML += `<li>${b} <button class="btn-del" onclick="delBarbeiro(${i})">🗑️</button></li>`
+    })
 
-const grid=document.getElementById("servicos")
-grid.innerHTML=""
-servicos.forEach((s,i)=>{
-grid.innerHTML+=`
-<div class="item">
-<strong>${s.nome}</strong>
-<div>R$ ${s.preco}</div>
-<button class="btn" onclick="vender(${i})">VENDER</button>
-</div>`
-})
+    // Select de Barbeiros (Venda)
+    const sel = document.getElementById("barbeiroSelecionado")
+    sel.innerHTML = "<option value=''>Selecione o Barbeiro</option>"
+    barbeiros.forEach(b => sel.innerHTML += `<option value="${b}">${b}</option>`)
 
-listar()
-salvar()
+    // Grid de Serviços (Venda e Exclusão)
+    const grid = document.getElementById("servicosBotoes")
+    grid.innerHTML = ""
+    servicos.forEach((s, i) => {
+        grid.innerHTML += `
+        <div class="item">
+            <button onclick="delServico(${i})" style="position:absolute;top:2px;right:2px;background:none;color:red;font-size:0.7rem">✖</button>
+            <strong>${s.nome}</strong>
+            <div>R$ ${s.preco.toFixed(2)}</div>
+            <button class="btn" style="margin-top:5px" onclick="vender(${i})">VENDER</button>
+        </div>`
+    })
+
+    listar()
+    salvar()
 }
 
 function addBarbeiro(){
-const n=document.getElementById("novoBarbeiro").value
-if(!n)return
-barbeiros.push(n)
-atualizar()
+    const n = document.getElementById("novoBarbeiro").value.trim()
+    if(!n) return
+    barbeiros.push(n)
+    document.getElementById("novoBarbeiro").value = ""
+    atualizar()
+}
+
+function delBarbeiro(i){
+    if(confirm("Remover este barbeiro?")) {
+        barbeiros.splice(i, 1)
+        atualizar()
+    }
 }
 
 function addServico(){
-const n=document.getElementById("nomeServico").value
-const p=parseFloat(document.getElementById("precoServico").value)
-if(!n)return
-servicos.push({nome:n,preco:p})
-atualizar()
+    const n = document.getElementById("nomeServico").value.trim()
+    const p = parseFloat(document.getElementById("precoServico").value)
+    if(!n || isNaN(p)) return alert("Preencha nome e preço")
+    servicos.push({nome: n, preco: p})
+    document.getElementById("nomeServico").value = ""
+    document.getElementById("precoServico").value = ""
+    atualizar()
+}
+
+function delServico(i){
+    if(confirm("Remover este serviço?")) {
+        servicos.splice(i, 1)
+        atualizar()
+    }
 }
 
 function vender(i){
-const b=document.getElementById("barbeiro").value
-if(!b)return alert("Selecione barbeiro")
-const agora=new Date()
-vendas.push({
-barbeiro:b,
-servico:servicos[i].nome,
-valor:servicos[i].preco,
-data:agora.toISOString().slice(0,10)
-})
-atualizar()
+    const b = document.getElementById("barbeiroSelecionado").value
+    if(!b) return alert("Selecione o barbeiro")
+    const agora = new Date()
+    vendas.push({
+        barbeiro: b,
+        servico: servicos[i].nome,
+        valor: servicos[i].preco,
+        data: agora.toISOString().slice(0, 10)
+    })
+    atualizar()
 }
 
-function listar(lista=vendas){
-const div=document.getElementById("lista")
-div.innerHTML=""
-let hoje=0,mes=0
+function listar(lista = vendas){
+    const div = document.getElementById("listaHistorico")
+    div.innerHTML = ""
+    let hoje = 0, mes = 0
+    const agora = new Date()
+    const hojeStr = agora.toISOString().slice(0,10)
 
-lista.forEach(v=>{
-div.innerHTML+=`<div>${v.data} - ${v.barbeiro} - ${v.servico} - R$ ${v.valor}</div>`
-const d=new Date(v.data)
-const h=new Date()
-if(d.toDateString()==h.toDateString())hoje+=v.valor
-if(d.getMonth()==h.getMonth())mes+=v.valor
-})
+    lista.slice().reverse().forEach(v => {
+        div.innerHTML += `<div style="font-size:0.8rem;border-bottom:1px solid #333;padding:5px">
+            ${v.data.split('-').reverse().join('/')} - <b>${v.barbeiro}</b><br>
+            ${v.servico}: R$ ${v.valor.toFixed(2)}
+        </div>`
+        
+        if(v.data === hojeStr) hoje += v.valor
+        if(v.data.slice(0,7) === hojeStr.slice(0,7)) mes += v.valor
+    })
 
-const lucro=mes*(porcentagemCasa/100)
-document.getElementById("totalHoje").innerText="R$ "+hoje.toFixed(2)
-document.getElementById("totalMes").innerText="R$ "+mes.toFixed(2)
-document.getElementById("lucroCasa").innerText="R$ "+lucro.toFixed(2)
+    document.getElementById("totalHoje").innerText = "R$ " + hoje.toFixed(2)
+    document.getElementById("totalMes").innerText = "R$ " + mes.toFixed(2)
+    document.getElementById("lucroCasa").innerText = "R$ " + (mes * (porcentagemCasa / 100)).toFixed(2)
 }
 
 function filtrar(){
-const d=document.getElementById("filtroData").value
-if(!d)return listar()
-listar(vendas.filter(v=>v.data==d))
+    const d = document.getElementById("filtroData").value
+    if(!d) return listar()
+    listar(vendas.filter(v => v.data === d))
 }
 
 function exportar(){
-const blob=new Blob([JSON.stringify({barbeiros,servicos,vendas})],{type:"application/json"})
-const a=document.createElement("a")
-a.href=URL.createObjectURL(blob)
-a.download="backup_barbearia.json"
-a.click()
+    const blob = new Blob([JSON.stringify({barbeiros, servicos, vendas})], {type: "application/json"})
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(blob)
+    a.download = "backup_barbearia.json"
+    a.click()
 }
 
 function importar(e){
-const r=new FileReader()
-r.onload=x=>{
-const d=JSON.parse(x.target.result)
-barbeiros=d.barbeiros
-servicos=d.servicos
-vendas=d.vendas
-atualizar()
-}
-r.readAsText(e.target.files[0])
+    const r = new FileReader()
+    r.onload = x => {
+        const d = JSON.parse(x.target.result)
+        barbeiros = d.barbeiros || []
+        servicos = d.servicos || []
+        vendas = d.vendas || []
+        atualizar()
+    }
+    r.readAsText(e.target.files[0])
 }
 
-if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js")}
 atualizar()
 </script>
 
